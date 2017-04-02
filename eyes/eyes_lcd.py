@@ -18,6 +18,14 @@ from operator import itemgetter
 from demo_opts import get_device
 from luma.core.render import canvas
 from luma.core.sprite_system import framerate_regulator
+from luma.lcd.device import st7735 
+
+
+#device settings 
+serial = spi(port=0, device=0, gpio_DC=23, gpio_RST=24)
+device = st7735(serial)
+device.width = 128
+device.height = 128 
 
 
 def radians(degrees):
@@ -127,7 +135,7 @@ def main(num_iterations=sys.maxsize):
 
 if __name__ == "__main__":
     try:
-        device = get_device()
+        device = device
         main()
     except KeyboardInterrupt:
         pass
