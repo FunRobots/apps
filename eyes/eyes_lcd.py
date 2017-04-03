@@ -15,17 +15,26 @@ http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
 import sys
 import math
 from operator import itemgetter
-from demo_opts import get_device
+from luma.core.serial import spi
 from luma.core.render import canvas
 from luma.core.sprite_system import framerate_regulator
 from luma.lcd.device import st7735 
+
+from utils import get_device
+from ppretty import ppretty
 
 
 #device settings 
 serial = spi(port=0, device=0, gpio_DC=23, gpio_RST=24)
 device = st7735(serial)
-device.width = 128
-device.height = 128 
+# device.width = 128
+# device.height = 128 
+# device.size = (128, 128)
+# device.bounding_box = (0, 0, 159, 127)
+# device.framebuffer.bounding_box = (0, 0, 159, 127)
+# device.framebuffer.image.im.size = (160, 128)
+# device.framebuffer.image.size = (160, 128)
+# device.framebuffer.image.width = 160
 
 
 def radians(degrees):
@@ -135,7 +144,9 @@ def main(num_iterations=sys.maxsize):
 
 if __name__ == "__main__":
     try:
-        device = device
+        device = get_device()
+        print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
+                show_static=True, show_properties=True, show_address=True))
         main()
     except KeyboardInterrupt:
         pass
