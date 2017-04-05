@@ -42,6 +42,4 @@ def get_device():
     except error.Error as e:
         parser.error(e)
 
-    print(display_settings(args))
-
     return device
