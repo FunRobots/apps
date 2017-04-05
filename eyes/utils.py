@@ -18,7 +18,7 @@ def load_config(path_to_config):
     :rtype: list
     """
     args = []
-    with open(path, 'r') as fp:
+    with open(path_to_config, 'r') as fp:
         for line in fp.readlines():
             if line.strip() and not line.startswith("#"):
                 args.append(line.replace("\n", ""))

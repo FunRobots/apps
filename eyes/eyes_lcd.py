@@ -27,8 +27,17 @@ from utils import get_device
 
 
 #device settings 
-serial = spi(port=0, device=0, gpio_DC=23, gpio_RST=24)
+serial = spi(port=0, 
+    device=0, 
+    gpio_DC=23, 
+    gpio_RST=24,
+    bus_speed_hz=16000000,
+    )
 device = st7735(serial)
+device.capabilities(width=128, 
+    height=128, 
+    rotate=0, 
+    mode='RGB')
 # device.width = 128
 # device.height = 128 
 # device.size = (128, 128)
@@ -79,7 +88,7 @@ def draw_eye(draw, angle, distane_from_center_percent):
     return draw
 
 
-def main(num_iterations=sys.maxsize):
+def main(device):
 
     with canvas(device, dither=True) as draw:
         
@@ -93,6 +102,6 @@ if __name__ == "__main__":
         device = get_device()
         print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
                 show_static=True, show_properties=True, show_address=True))
-        main()
+        main(device)
     except KeyboardInterrupt:
         pass
