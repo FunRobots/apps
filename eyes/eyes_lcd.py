@@ -14,6 +14,8 @@ http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
 
 import sys
 import math
+import random 
+from ppretty import ppretty
 from operator import itemgetter
 from luma.core.serial import spi
 from luma.core.render import canvas
@@ -21,7 +23,7 @@ from luma.core.sprite_system import framerate_regulator
 from luma.lcd.device import st7735 
 
 from utils import get_device
-from ppretty import ppretty
+
 
 
 #device settings 
@@ -37,109 +39,53 @@ device = st7735(serial)
 # device.framebuffer.image.width = 160
 
 
-def radians(degrees):
-    return degrees * math.pi / 180
+def convert_params_to_coord(angle, distane_from_center_percent, outer_radius):
+    import math 
+    
+    angle_rad = math.radians(360 - angle)
+    distance = distane_from_center_percent * outer_radius
+    x = math.ceil(distance * math.cos(angle_rad))
+    y = math.ceil(distance * math.sin(angle_rad))
+    
+    return x, y
 
+def draw_eye(draw, angle, distane_from_center_percent):
+    #settings 
+    bound_box = (1, 1, 127, 127)
+    center_coords = (64, 64)
+    outer_radius = (bound_box[2] - bound_box[0]) / 2
+    pr = 20  #pupil radius 
+    pupil_radius = outer_radius - pr
+    
+    #calc x, y shift from center
+    x, y = convert_params_to_coord(angle, distane_from_center_percent, pupil_radius)  
+     
+    x0 = center_coords[0] + x - pr
+    y0 = center_coords[1] + y - pr
+    x1 = center_coords[0] + x + pr
+    y1 = center_coords[1] + y + pr
+    
+    
+    #eye outer border
+    draw.ellipse((3, 3, 125, 125), '#14F6FA', '#14F6FA')
+    
+    #eye pupil 
+    eye_tuple = (x0, y0, x1, y1)
 
-class point(object):
-
-    def __init__(self, x, y, z):
-        self.coords = (x, y, z)
-        self.xy = (x, y)
-        self.z = z
-
-    def rotate_x(self, angle):
-        x, y, z = self.coords
-        rad = radians(angle)
-        c = math.cos(rad)
-        s = math.sin(rad)
-        return point(x, y * c - z * s, y * s + z * c)
-
-    def rotate_y(self, angle):
-        x, y, z = self.coords
-        rad = radians(angle)
-        c = math.cos(rad)
-        s = math.sin(rad)
-        return point(z * s + x * c, y, z * c - x * s)
-
-    def rotate_z(self, angle):
-        x, y, z = self.coords
-        rad = radians(angle)
-        c = math.cos(rad)
-        s = math.sin(rad)
-        return point(x * c - y * s, x * s + y * c, z)
-
-    def project(self, size, fov, viewer_distance):
-        x, y, z = self.coords
-        factor = fov / (viewer_distance + z)
-        return point(x * factor + size[0] / 2, -y * factor + size[1] / 2, z)
-
-
-def sine_wave(min, max, step=1):
-    angle = 0
-    diff = max - min
-    diff2 = diff / 2
-    offset = min + diff2
-    while True:
-        yield angle, offset + math.sin(radians(angle)) * diff2
-        angle += step
+    draw.ellipse(eye_tuple, 'black', 'black')  # made this a little smaller..
+#     draw.ellipse((50, 20, 60, 30), 'yellow', 'blue')
+#     draw.arc((20, 40, 70, 70), 0, 180, 'black')  # draw an arc in black
+    
+    return draw
 
 
 def main(num_iterations=sys.maxsize):
 
-    regulator = framerate_regulator(fps=30)
-
-    vertices = [
-        point(-1, 1, -1),
-        point(1, 1, -1),
-        point(1, -1, -1),
-        point(-1, -1, -1),
-        point(-1, 1, 1),
-        point(1, 1, 1),
-        point(1, -1, 1),
-        point(-1, -1, 1)
-    ]
-
-    faces = [
-        ((0, 1, 2, 3), "red"),
-        ((1, 5, 6, 2), "green"),
-        ((0, 4, 5, 1), "blue"),
-        ((5, 4, 7, 6), "magenta"),
-        ((4, 0, 3, 7), "yellow"),
-        ((3, 2, 6, 7), "cyan")
-    ]
-
-    a, b, c = 0, 0, 0
-
-    for angle, dist in sine_wave(8, 40, 1.5):
-        with regulator:
-            num_iterations -= 1
-            if num_iterations == 0:
-                break
-
-            t = [v.rotate_x(a).rotate_y(b).rotate_z(c).project(device.size, 256, dist)
-                for v in vertices]
-
-            depth = []
-            for idx, face in enumerate(faces):
-                v1, v2, v3, v4 = face[0]
-                avg_z = (t[v1].z + t[v2].z + t[v3].z + t[v4].z) / 4.0
-                depth.append((idx, avg_z))
-
-            with canvas(device, dither=True) as draw:
-                for idx, depth in sorted(depth, key=itemgetter(1), reverse=True)[3:]:
-                    (v1, v2, v3, v4), color = faces[idx]
-
-                    if angle // 720 % 2 == 0:
-                        fill, outline = color, color
-                    else:
-                        fill, outline = "black", "white"
-
-                    draw.polygon(t[v1].xy + t[v2].xy + t[v3].xy + t[v4].xy, fill, outline)
-
-            a += 0.3
-            b -= 1.1
-            c += 0.85
+    with canvas(device, dither=True) as draw:
+        
+        while True: 
+            draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
+            # image.show()
 
 
 if __name__ == "__main__":
