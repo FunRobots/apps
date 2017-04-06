@@ -68,8 +68,6 @@ def main(num_iterations=sys.maxsize):
 
     frame_count = 0
     fps = ""
-    canvas = luma.core.render.canvas(device)
-
     regulator = framerate_regulator(fps=10)
 
     while num_iterations > 0:
@@ -77,7 +75,7 @@ def main(num_iterations=sys.maxsize):
             num_iterations -= 1
 
             frame_count += 1
-            with canvas as draw:
+            with canvas(device) as draw:
                 draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
 
             if frame_count % 20 == 0:
@@ -92,6 +90,6 @@ if __name__ == "__main__":
         device.framebuffer.bounding_box = (0, 0, 127, 127)
         print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
                 show_static=True, show_properties=True, show_address=True))
-        main(device)
+        main()
     except KeyboardInterrupt:
         pass

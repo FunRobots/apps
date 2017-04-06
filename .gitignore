@@ -8,6 +8,9 @@
 *.jpeg
 *.jpg
 
+#Python compiled files 
+*.pyc
+
 
 
 # Unit test / coverage reports
