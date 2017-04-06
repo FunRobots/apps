@@ -15,7 +15,6 @@ http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
 import sys
 import math
 import random 
-from ppretty import ppretty
 from operator import itemgetter
 from luma.core.serial import spi
 from luma.core.render import canvas
@@ -25,15 +24,83 @@ from luma.lcd.device import st7735
 from utils import get_device
 
 
-def convert_params_to_coord(angle, distane_from_center_percent, outer_radius):
-    import math 
+class Eyes(object):
+    def __init__(self, width, height, background_color, eye_radius, eye_color, pupil_radius, pupil_color):
+        #LCD base settings
+        self._w = width
+        self._h = height
+        self._color = background_color
+        self._eye_radius = eye_radius
+        self._eye_color = color
+        
+        #Eyes base settings 
+        self._x_pos = self._w / 2.0
+        self._y_pos = self._h / 2.0
+        # self.bound_box =  (0, 0, width, height)  #seems needless TODO: delete at next commit
+        # self.outer_radius = (self.bound_box[2] - self.bound_box[0]) / 2   #seems needless TODO: delete at next commit
+        self._pupil_radius = pupil_radius 
+        self._pupil_orbit_radius = self.eye_radius - self._pupil_size
+        self._pupil_color = pupil_color
+        
+        #speed settings 
+        self._x_speed = 5
+        self._y_speed = 5
+
+    def update_pos(self, x_step = None, y_step = None):
+        if x_step is None:
+            x_step = self._x_speed
+        if у_step is None:
+            y_step = self._y_speed
+        
+        if self._x_pos + self._radius > self._w:
+            self._x_speed = -abs(x_step)
+        elif self._x_pos - self._radius < 0.0:
+            self._x_speed = abs(x_step)
+
+        if self._y_pos + self._radius > self._h:
+            self._y_speed = -abs(y_step)
+        elif self._y_pos - self._radius < 0.0:
+            self._y_speed = abs(y_step)
+
+        self._x_pos += self._x_speed
+        self._y_pos += self._y_speed
+         
+    def draw(self, canvas):
+        #draw eye
+        canvas.ellipse((0,self._eye_radius, 0, self._eye_radius),
+                     fill=self._eye_color,
+                     outline=self._eye_color)        
+        #draw pupil
+        canvas.ellipse((self._x_pos - self._pupil_radius, 
+                      self._y_pos - self._pupil_radius,
+                      self._x_pos + self._pupil_radius, 
+                      self._y_pos + self._pupil_radius),
+                     fill=self._pupil_color,
+                     outline=self._pupil_color)
+
+    #eyes control methods 
+    def get_eyes_position(self):
+        return (_x_pos, _y_pos)
     
-    angle_rad = math.radians(360 - angle)
-    distance = distane_from_center_percent * outer_radius
-    x = math.ceil(distance * math.cos(angle_rad))
-    y = math.ceil(distance * math.sin(angle_rad))
-    
-    return x, y
+    def set_eyes_position(self, x, y, canvas):
+        #define steps to set eyes into new position (x,y)
+        def get_path_to_point(goal, _pos, _speed):
+            x_path = []
+            move = (x1 - x0) / speed
+            steps_number = math.floor(math.copysign(move, speed))
+            step_speed = math.copysign(speed, move)
+            [x_path.append(step_speed) for step in range(1,steps_number)]
+            return path
+        
+        x_path = get_path_to_point(x, self._x_pos,  self._x_speed)
+        x_path = get_path_to_point(y, self._y_pos,  self._y_speed)
+        
+        y_path = range(self._y_pos, y, self._y_speed)
+        #for each step: update position, draw eyes 
+        for x_step, y_step in zip_longest(x_path, y_path, fillvalue=0):
+            self.update_pos(x_step, y_step)
+            self.draw(canvas) 
+
 
 def draw_eye(draw, angle, distane_from_center_percent):
     #settings 
@@ -62,6 +129,15 @@ def draw_eye(draw, angle, distane_from_center_percent):
 
 
 def main(num_iterations=sys.maxsize):
+    device = get_device()
+    eyes = Eyes(width=128, 
+        height=128, 
+        background_color='#14F6FA',
+        eye_radius=46, 
+        eye_color='#14F6FA', 
+        pupil_radius=10, 
+        pupil_color='#14F6FA')
+
     colors = ["red", "orange", "yellow", "green", "blue", "magenta"]
 
     frame_count = 0
@@ -73,8 +149,9 @@ def main(num_iterations=sys.maxsize):
             num_iterations -= 1
 
             frame_count += 1
-            with canvas(device) as draw:
-                draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
+            with canvas(device) as canvas:
+                # draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
+                eyes.draw(canvas)
 
             if frame_count % 20 == 0:
                 fps = "FPS: {0:0.3f}".format(regulator.effective_FPS())
@@ -82,9 +159,6 @@ def main(num_iterations=sys.maxsize):
 
 if __name__ == "__main__":
     try:
-        device = get_device()
-        # print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
-        #         show_static=True, show_properties=True, show_address=True))
         main()
     except KeyboardInterrupt:
         pass
