@@ -25,29 +25,6 @@ from luma.lcd.device import st7735
 from utils import get_device
 
 
-
-#device settings 
-serial = spi(port=0, 
-    device=0, 
-    gpio_DC=23, 
-    gpio_RST=24,
-    bus_speed_hz=16000000,
-    )
-device = st7735(serial)
-device.capabilities(width=128, 
-    height=128, 
-    rotate=0, 
-    mode='RGB')
-# device.width = 128
-# device.height = 128 
-# device.size = (128, 128)
-# device.bounding_box = (0, 0, 159, 127)
-# device.framebuffer.bounding_box = (0, 0, 159, 127)
-# device.framebuffer.image.im.size = (160, 128)
-# device.framebuffer.image.size = (160, 128)
-# device.framebuffer.image.width = 160
-
-
 def convert_params_to_coord(angle, distane_from_center_percent, outer_radius):
     import math 
     
@@ -80,26 +57,39 @@ def draw_eye(draw, angle, distane_from_center_percent):
     
     #eye pupil 
     eye_tuple = (x0, y0, x1, y1)
+    draw.ellipse(eye_tuple, 'black', 'black') 
 
-    draw.ellipse(eye_tuple, 'black', 'black')  # made this a little smaller..
-#     draw.ellipse((50, 20, 60, 30), 'yellow', 'blue')
-#     draw.arc((20, 40, 70, 70), 0, 180, 'black')  # draw an arc in black
     
     return draw
 
 
-def main(device):
+def main(num_iterations=sys.maxsize):
+    colors = ["red", "orange", "yellow", "green", "blue", "magenta"]
 
-    with canvas(device, dither=True) as draw:
-        
-        while True: 
-            draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
-            # image.show()
+    frame_count = 0
+    fps = ""
+    canvas = luma.core.render.canvas(device)
+
+    regulator = framerate_regulator(fps=10)
+
+    while num_iterations > 0:
+        with regulator:
+            num_iterations -= 1
+
+            frame_count += 1
+            with canvas as draw:
+                draw_eye(draw, random.randint(0, 360), random.uniform(0, 1))
+
+            if frame_count % 20 == 0:
+                fps = "FPS: {0:0.3f}".format(regulator.effective_FPS())
 
 
 if __name__ == "__main__":
     try:
         device = get_device()
+        device.bounding_box = (0, 0, 127, 127)
+        device.size = (128, 128)
+        device.framebuffer.bounding_box = (0, 0, 127, 127)
         print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
                 show_static=True, show_properties=True, show_address=True))
         main(device)
