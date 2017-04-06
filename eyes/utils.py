@@ -39,6 +39,10 @@ def get_device():
     # create device
     try:
         device = cmdline.create_device(args)
+        #settings for LCD size 
+        device.bounding_box = (0, 0, 127, 127)
+        device.size = (128, 128)
+        device.framebuffer.bounding_box = (0, 0, 127, 127)
     except error.Error as e:
         parser.error(e)
 

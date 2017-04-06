@@ -49,8 +49,7 @@ def draw_eye(draw, angle, distane_from_center_percent):
     x0 = center_coords[0] + x - pr
     y0 = center_coords[1] + y - pr
     x1 = center_coords[0] + x + pr
-    y1 = center_coords[1] + y + pr
-    
+    y1 = center_coords[1] + y + pr  
     
     #eye outer border
     draw.ellipse((3, 3, 125, 125), '#14F6FA', '#14F6FA')
@@ -58,7 +57,6 @@ def draw_eye(draw, angle, distane_from_center_percent):
     #eye pupil 
     eye_tuple = (x0, y0, x1, y1)
     draw.ellipse(eye_tuple, 'black', 'black') 
-
     
     return draw
 
@@ -85,11 +83,8 @@ def main(num_iterations=sys.maxsize):
 if __name__ == "__main__":
     try:
         device = get_device()
-        device.bounding_box = (0, 0, 127, 127)
-        device.size = (128, 128)
-        device.framebuffer.bounding_box = (0, 0, 127, 127)
-        print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
-                show_static=True, show_properties=True, show_address=True))
+        # print(ppretty(device, indent='  ', depth=5, width=120, seq_length=10, show_protected=False, show_private=True,
+        #         show_static=True, show_properties=True, show_address=True))
         main()
     except KeyboardInterrupt:
         pass
