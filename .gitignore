@@ -1,6 +1,7 @@
-#OS junk files
+#OS and IDE junk files
 [Tt]humbs.db
 *.DS_Store
+*.idea/
 
 
 #other

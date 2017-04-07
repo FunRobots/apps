@@ -40,6 +40,9 @@ class Eyes(object):
         # self.device = get_device()
         # self.canvas = create_canvas(self.device)  # try to keep canvas outside Eyes (in main node script) !!!
 
+        #other settings
+        self._emotion = 'happy'
+
 
     def set_eyes_position(self, x_step = None, y_step = None):
         if x_step is None:
@@ -48,17 +51,17 @@ class Eyes(object):
             y_step = self._y_speed
         
         if self._x_pos + self._pupil_radius > self._w:
-            self._x_speed = -abs(x_step)
+            x_step = 0
         elif self._x_pos - self._pupil_radius < 0.0:
-            self._x_speed = abs(x_step)
+            x_step = 0
 
         if self._y_pos + self._pupil_radius > self._h:
-            self._y_speed = -abs(y_step)
+            y_step = 0
         elif self._y_pos - self._pupil_radius < 0.0:
-            self._y_speed = abs(y_step)
+            y_step = 0
 
-        self._x_pos += self._x_speed
-        self._y_pos += self._y_speed
+        self._x_pos += x_step
+        self._y_pos += y_step
 
 
     #eyes control methods
@@ -73,6 +76,7 @@ class Eyes(object):
 
         #define steps to set eyes into new position (x,y)
         def get_path_to_point(self, goal, self_pos, speed):
+
             path = []
             move = (goal - self_pos) / speed
             steps_number = int(math.copysign(move, speed))
@@ -80,20 +84,21 @@ class Eyes(object):
             [path.append(step_speed) for step in range(1, steps_number)]
             return path
         
-        x_path = get_path_to_point(x, self._x_pos,  self._x_speed)
-        y_path = get_path_to_point(y, self._y_pos,  self._y_speed)
+        x_path = get_path_to_point(self, x, self._x_pos,  self._x_speed)
+        y_path = get_path_to_point(self, y, self._y_pos,  self._y_speed)
 
         return izip_longest(x_path, y_path, fillvalue=0)
 
 
     def set_emotion(self, emotion=None):
         if emotion is None:
-            self.emotion = 'happy'
-        self.emotion = emotion
+            self._emotion = 'happy'
+        else:
+            self._emotion = emotion
 
 
     def get_emotion(self):
-        return self.emotion
+        return self._emotion
 
 
 
@@ -112,7 +117,7 @@ class Eyes(object):
                                        self._eye_radius)
 
         #get path to move eyes
-        path = self.set_path_to_move_eyes(self, x, y)
+        path = self.set_path_to_move_eyes(x, y)
 
         # move eyes
         for x_step, y_step in path:
@@ -131,8 +136,8 @@ class Eyes(object):
             #
 
             # draw eye
-            draw_eye(canvas = canvas,
-                     emotion = self.emotion,
+            draw_eye(eyes_canvas = canvas,
+                     emotion = self._emotion,
                      x0 = 0,
                      y0 = 0,
                      x1 = self._eye_radius,
@@ -141,8 +146,8 @@ class Eyes(object):
                      outline=self._eye_color)
 
             # draw pupil
-            draw_eye(canvas = canvas,
-                     emotion = self.emotion,
+            draw_eye(eyes_canvas = canvas,
+                     emotion = self._emotion,
                      x0 = self._x_pos - self._pupil_radius,
                      y0 = self._y_pos - self._pupil_radius,
                      x1 = self._x_pos + self._pupil_radius,
@@ -164,14 +169,11 @@ def main():
 
     # display settings
     device = get_device()
-    canvas = create_canvas(device)
     frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
-
-
 
     with frame_rate_regulator:
         # 30 fps expected
-        with canvas:
+        with create_canvas(device) as canvas:
             while True:
 
                 # some subscribers code here
@@ -180,9 +182,11 @@ def main():
                 emotion = None
 
                 # check params
-                if angle is None & distance_from_center_percent is None:
+                if angle is None:
+                    eyes.move_eyes(canvas)
+                elif distance_from_center_percent is None:
                     # set default params to draw eyes in center position
-                    eyes.move_eyes()
+                    eyes.move_eyes(canvas)
 
                 # main instructions for eyes
                 else:

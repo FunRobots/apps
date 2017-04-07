@@ -67,7 +67,7 @@ def convert_params_to_coord(angle, distance_from_center_percent, outer_radius):
     return x, y
 
 
-def draw_eye(canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA'):
+def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA'):
     # # default settings:
     # x0 = 0
     # y0 = 0
@@ -75,4 +75,4 @@ def draw_eye(canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA')
     # y1 = 128
 
     # eye outer border
-    canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
+    eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
