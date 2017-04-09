@@ -78,10 +78,9 @@ class Eyes(object):
         def get_path_to_point(self, goal, self_pos, speed):
 
             path = []
-            move = (goal - self_pos) / speed
-            steps_number = int(math.copysign(move, speed))
-            step_speed = int(math.copysign(speed, move))
-            [path.append(step_speed) for step in range(1, steps_number)]
+            steps = int(abs((goal - self_pos) / speed))
+            step_speed = int((goal - self_pos) / steps)
+            [path.append(step_speed) for step in range(0, steps)]
             return path
         
         x_path = get_path_to_point(self, x, self._x_pos,  self._x_speed)
