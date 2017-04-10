@@ -78,7 +78,8 @@ def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F
     # y0 = 0
     # x1 = 128
     # y1 = 128
-
-    # eye outer border
-    eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
+    frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
+    with frame_rate_regulator:
+        # eye outer border
+        eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
 

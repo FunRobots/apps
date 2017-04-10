@@ -82,7 +82,7 @@ class Eyes(object):
 
             path=[]
             steps = int(abs((goal - self_pos) / speed))
-            print(steps)
+            # print(steps)
             if steps == 0:
                 step_speed = 0
             else:
@@ -141,27 +141,27 @@ class Eyes(object):
             #          fill=self._pupil_color,
             #          outline=self._pupil_color)
             #
-            frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
-            with frame_rate_regulator:
-                # draw eye
-                draw_eye(eyes_canvas = canvas,
-                         emotion = self._emotion,
-                         x0 = 0,
-                         y0 = 0,
-                         x1 = self._eye_radius,
-                         y1 = self._eye_radius,
-                         fill=self._eye_color,
-                         outline=self._eye_color)
 
-                # draw pupil
-                draw_eye(eyes_canvas = canvas,
-                         emotion = self._emotion,
-                         x0 = self._x_pos - self._pupil_radius,
-                         y0 = self._y_pos - self._pupil_radius,
-                         x1 = self._x_pos + self._pupil_radius,
-                         y1 = self._y_pos + self._pupil_radius,
-                         fill=self._pupil_color,
-                         outline=self._pupil_color)
+            # draw eye
+            draw_eye(eyes_canvas = canvas,
+                     emotion = self._emotion,
+                     x0 = 0,
+                     y0 = 0,
+                     x1 = self._eye_radius,
+                     y1 = self._eye_radius,
+                     fill=self._eye_color,
+                     outline=self._eye_color)
+
+            # draw pupil
+            draw_eye(eyes_canvas = canvas,
+                     emotion = self._emotion,
+                     x0 = self._x_pos - self._pupil_radius,
+                     y0 = self._y_pos - self._pupil_radius,
+                     x1 = self._x_pos + self._pupil_radius,
+                     y1 = self._y_pos + self._pupil_radius,
+                     fill=self._pupil_color,
+                     outline=self._pupil_color)
+
 
 
 
