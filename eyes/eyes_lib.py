@@ -72,8 +72,6 @@ def convert_params_to_coord(angle, distance_from_center_percent, outer_radius):
     return x, y
 
 
-def
-
 def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA'):
     # # default settings:
     # x0 = 0

@@ -53,14 +53,14 @@ class Eyes(object):
         if y_step is None:
             y_step = self._y_speed
         
-        if self._x_pos + self._pupil_radius > self._w:
+        if self._x_pos + self._pupil_radius +  x_step> self._w:
             x_step = 0
-        elif self._x_pos - self._pupil_radius < 0.0:
+        elif self._x_pos - self._pupil_radius -  x_step < 0.0:
             x_step = 0
 
-        if self._y_pos + self._pupil_radius > self._h:
+        if self._y_pos + self._pupil_radius +  y_step> self._h:
             y_step = 0
-        elif self._y_pos - self._pupil_radius < 0.0:
+        elif self._y_pos - self._pupil_radius -  y_step < 0.0:
             y_step = 0
 
         self._x_pos += x_step
@@ -80,10 +80,17 @@ class Eyes(object):
         #define steps to set eyes into new position (x,y)
         def get_path_to_point(self, goal, self_pos, speed):
 
-            path = []
+            path=[]
             steps = int(abs((goal - self_pos) / speed))
-            step_speed = int((goal - self_pos) / steps)
+            print(steps)
+            if steps == 0:
+                step_speed = 0
+            else:
+                step_speed = int((goal - self_pos) / steps)
             [path.append(step_speed) for step in range(0, steps)]
+            if path==[]:
+                path.append(0)
+
             return path
         
         x_path = get_path_to_point(self, x, self._x_pos,  self._x_speed)
