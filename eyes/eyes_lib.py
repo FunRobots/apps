@@ -57,7 +57,12 @@ def set_display_frame_rate(fps):
 
 
 def convert_params_to_coord(angle, distance_from_center_percent, outer_radius):
-    import math 
+    import math
+
+    if angle is None:
+        angle = 0
+    if distance_from_center_percent is None:
+        distance_from_center_percent = 0
     
     angle_rad = math.radians(360 - angle)
     distance = distance_from_center_percent * outer_radius
@@ -66,6 +71,8 @@ def convert_params_to_coord(angle, distance_from_center_percent, outer_radius):
     
     return x, y
 
+
+def
 
 def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA'):
     # # default settings:
@@ -76,3 +83,4 @@ def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F
 
     # eye outer border
     eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
+

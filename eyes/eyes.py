@@ -24,15 +24,17 @@ class Eyes(object):
         self._eye_color = eye_color
         
         #Eyes base settings 
-        self._x_pos = self._w / 2.0
-        self._y_pos = self._h / 2.0
+        self._x_center = int(self._w / 2)
+        self._y_center = int(self._h / 2)
+        self._x_pos = self._x_center
+        self._y_pos = self._y_center
         # self.bound_box =  (0, 0, width, height)  #seems needless TODO: delete at next commit
         # self.outer_radius = (self.bound_box[2] - self.bound_box[0]) / 2   #seems needless TODO: delete at next commit
         self._pupil_radius = pupil_radius 
         self._pupil_orbit_radius = self._eye_radius - self._pupil_radius
         self._pupil_color = pupil_color
         
-        #speed settings 
+        #speed settings
         self._x_speed = 5
         self._y_speed = 5
 
@@ -42,6 +44,7 @@ class Eyes(object):
 
         #other settings
         self._emotion = 'happy'
+
 
 
     def set_eyes_position(self, x_step = None, y_step = None):
@@ -106,14 +109,12 @@ class Eyes(object):
         # set default position
         if canvas is None:
             raise Exception('Error: canvas is None')
-        if angle is None:
-            angle = 0
-        if distance_from_center_percent is None:
-            distance_from_center_percent = 0
 
-        # convert params to coords
-        x, y = convert_params_to_coord(angle, distance_from_center_percent,
+        # get new coords for eye pupil
+        x_shift, y_shift = convert_params_to_coord(angle, distance_from_center_percent,
                                        self._eye_radius)
+        x = x_shift + self._x_center
+        y = y_shift + self._y_center
 
         #get path to move eyes
         path = self.set_path_to_move_eyes(x, y)
@@ -133,26 +134,27 @@ class Eyes(object):
             #          fill=self._pupil_color,
             #          outline=self._pupil_color)
             #
+            frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
+            with frame_rate_regulator:
+                # draw eye
+                draw_eye(eyes_canvas = canvas,
+                         emotion = self._emotion,
+                         x0 = 0,
+                         y0 = 0,
+                         x1 = self._eye_radius,
+                         y1 = self._eye_radius,
+                         fill=self._eye_color,
+                         outline=self._eye_color)
 
-            # draw eye
-            draw_eye(eyes_canvas = canvas,
-                     emotion = self._emotion,
-                     x0 = 0,
-                     y0 = 0,
-                     x1 = self._eye_radius,
-                     y1 = self._eye_radius,
-                     fill=self._eye_color,
-                     outline=self._eye_color)
-
-            # draw pupil
-            draw_eye(eyes_canvas = canvas,
-                     emotion = self._emotion,
-                     x0 = self._x_pos - self._pupil_radius,
-                     y0 = self._y_pos - self._pupil_radius,
-                     x1 = self._x_pos + self._pupil_radius,
-                     y1 = self._y_pos + self._pupil_radius,
-                     fill=self._pupil_color,
-                     outline=self._pupil_color)
+                # draw pupil
+                draw_eye(eyes_canvas = canvas,
+                         emotion = self._emotion,
+                         x0 = self._x_pos - self._pupil_radius,
+                         y0 = self._y_pos - self._pupil_radius,
+                         x1 = self._x_pos + self._pupil_radius,
+                         y1 = self._y_pos + self._pupil_radius,
+                         fill=self._pupil_color,
+                         outline=self._pupil_color)
 
 
 
@@ -168,32 +170,30 @@ def main():
 
     # display settings
     device = get_device()
-    frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
 
-    with frame_rate_regulator:
         # 30 fps expected
-        with create_canvas(device) as canvas:
-            while True:
+    with create_canvas(device) as canvas:
+        while True:
 
-                # some subscribers code here
-                angle = None
-                distance_from_center_percent = None
-                emotion = None
+            # some subscribers code here
+            angle = None
+            distance_from_center_percent = None
+            emotion = None
 
-                # check params
-                if angle is None:
-                    eyes.move_eyes(canvas)
-                elif distance_from_center_percent is None:
-                    # set default params to draw eyes in center position
-                    eyes.move_eyes(canvas)
+            # check params
+            if angle is None:
+                eyes.move_eyes(canvas)
+            elif distance_from_center_percent is None:
+                # set default params to draw eyes in center position
+                eyes.move_eyes(canvas)
 
-                # main instructions for eyes
-                else:
-                    # set eyes working mode
-                    eyes.set_emotion(emotion)
-                    eyes.move_eyes(canvas, angle, distance_from_center_percent)
+            # main instructions for eyes
+            else:
+                # set eyes working mode
+                eyes.set_emotion(emotion)
+                eyes.move_eyes(canvas, angle, distance_from_center_percent)
 
-                    # additional code here (i.e. publish eyes state)
+                # additional code here (i.e. publish eyes state])
 
 
 if __name__ == "__main__":
