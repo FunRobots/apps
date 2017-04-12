@@ -33,17 +33,17 @@ def get_device():
     Create device from command-line arguments and return it.
     """
     config = load_config(EYES_LCD_CONFIG_FILE)
-    parser = cmdline.create_parser(description='luma.examples arguments')
+    parser = cmdline.create_parser(description='ST7735 128*128 configuration')
     args = parser.parse_args(config)
 
     # create device
     try:
-        # device = cmdline.create_device(args)
+        device = cmdline.create_device(args)
         # #settings for LCD size
         # device.bounding_box = (0, 0, 127, 127)
         # device.size = (128, 128)
-        # device.framebuffer.bounding_box = (0, 0, 127, 127)
-        device = st7735(width=128, height=128, h_offset=2, v_offset=1)
+        # device.framebuffer.boundingit stg_box = (0, 0, 127, 127)
+        # device = st7735(width=128, height=128, h_offset=2, v_offset=1)
     except error.Error as e:
         parser.error(e)
 
