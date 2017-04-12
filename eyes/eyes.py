@@ -7,8 +7,8 @@
 Candybot eyes module 
 
 """
-
-import math
+import sys
+import random
 from itertools import izip_longest #use zip_longest for Python3
 from eyes_lib import get_device, convert_params_to_coord, draw_eye, \
     set_display_frame_rate, create_canvas
@@ -28,8 +28,6 @@ class Eyes(object):
         self._y_center = int(self._h / 2)
         self._x_pos = self._x_center
         self._y_pos = self._y_center
-        # self.bound_box =  (0, 0, width, height)  #seems needless TODO: delete at next commit
-        # self.outer_radius = (self.bound_box[2] - self.bound_box[0]) / 2   #seems needless TODO: delete at next commit
         self._pupil_radius = pupil_radius 
         self._pupil_orbit_radius = self._eye_radius - self._pupil_radius
         self._pupil_color = pupil_color
@@ -37,10 +35,6 @@ class Eyes(object):
         #speed settings
         self._x_speed = 5
         self._y_speed = 5
-
-        #device settings
-        # self.device = get_device()
-        # self.canvas = create_canvas(self.device)  # try to keep canvas outside Eyes (in main node script) !!!
 
         #other settings
         self._emotion = 'happy'
@@ -52,16 +46,6 @@ class Eyes(object):
             x_step = self._x_speed
         if y_step is None:
             y_step = self._y_speed
-        
-        if self._x_pos + self._pupil_radius +  x_step> self._w:
-            x_step = 0
-        elif self._x_pos - self._pupil_radius -  x_step < 0.0:
-            x_step = 0
-
-        if self._y_pos + self._pupil_radius +  y_step> self._h:
-            y_step = 0
-        elif self._y_pos - self._pupil_radius -  y_step < 0.0:
-            y_step = 0
 
         self._x_pos += x_step
         self._y_pos += y_step
@@ -119,36 +103,27 @@ class Eyes(object):
 
         # get new coords for eye pupil
         x_shift, y_shift = convert_params_to_coord(angle, distance_from_center_percent,
-                                       self._eye_radius)
+                                                   self._pupil_orbit_radius)
         x = x_shift + self._x_center
         y = y_shift + self._y_center
 
         #get path to move eyes
         path = self.set_path_to_move_eyes(x, y)
 
+
+
         # move eyes
         for x_step, y_step in path:
             # update eyes position
             self.set_eyes_position(x_step, y_step)
 
-            # clear old pupil position - it seems unnecessary - TEST!!!
-            # draw_eye(canvas,
-            #          self.emotion,
-            #          self._x_pos - self._pupil_radius,
-            #          self._y_pos - self._pupil_radius,
-            #          self._x_pos + self._pupil_radius,
-            #          self._y_pos + self._pupil_radius,
-            #          fill=self._pupil_color,
-            #          outline=self._pupil_color)
-            #
-
-            # draw eye
-            draw_eye(eyes_canvas = canvas,
-                     emotion = self._emotion,
-                     x0 = 0,
-                     y0 = 0,
-                     x1 = self._eye_radius,
-                     y1 = self._eye_radius,
+            # draw default eye (clear previous step)
+            draw_eye(eyes_canvas=canvas,
+                     emotion=self._emotion,
+                     x0=0,
+                     y0=0,
+                     x1=self._x_center + self._eye_radius,
+                     y1=self._y_center + self._eye_radius,
                      fill=self._eye_color,
                      outline=self._eye_color)
 
@@ -165,40 +140,52 @@ class Eyes(object):
 
 
 
-def main():
+def main(num_iterations=sys.maxsize):
 
     eyes = Eyes(width=128, 
         height=128, 
-        background_color='#14F6FA',
-        eye_radius=46, 
-        eye_color='#14F6FA', 
-        pupil_radius=10, 
-        pupil_color='#14F6FA')
+        background_color='#ffffff',
+        eye_radius=64,
+        eye_color='#ffffff',
+        pupil_radius=25,
+        pupil_color='#1c86ee')
 
     # display settings
     device = get_device()
 
-        # 30 fps expected
-    with create_canvas(device) as canvas:
-        while True:
+    device = get_device()
+    frame_count = 0
+    fps = ""
+    regulator = set_display_frame_rate(fps=10)
+
+    while num_iterations > 0:
+        with regulator:
+            num_iterations -= 1
+
+            frame_count += 1
 
             # some subscribers code here
-            angle = None
-            distance_from_center_percent = None
+            angle = 90
+            distance_from_center_percent = 1
             emotion = None
 
-            # check params
-            if angle is None:
-                eyes.move_eyes(canvas)
-            elif distance_from_center_percent is None:
-                # set default params to draw eyes in center position
-                eyes.move_eyes(canvas)
+            with create_canvas(device) as canvas:
+                ## uncomment for debug purpose
+                # angle = random.uniform(0, 360)
+                # distance_from_center_percent = random.random()
+                # emotion = None
 
-            # main instructions for eyes
-            else:
-                # set eyes working mode
-                eyes.set_emotion(emotion)
-                eyes.move_eyes(canvas, angle, distance_from_center_percent)
+                # check params
+                if angle is None:
+                    eyes.move_eyes(canvas)
+                elif distance_from_center_percent is None:
+                    # set default params to draw eyes in center position
+                    eyes.move_eyes(canvas)
+
+                # main instructions for eyes
+                else:
+                    eyes.set_emotion(emotion)
+                    eyes.move_eyes(canvas, angle, distance_from_center_percent)
 
                 # additional code here (i.e. publish eyes state])
 

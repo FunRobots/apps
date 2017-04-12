@@ -6,6 +6,7 @@ import sys
 from luma.core import cmdline, error
 from luma.core.render import canvas
 from luma.core.sprite_system import framerate_regulator
+from luma.lcd.device import st7735
 
 
 EYES_LCD_CONFIG_FILE = "eyes.conf"
@@ -37,11 +38,12 @@ def get_device():
 
     # create device
     try:
-        device = cmdline.create_device(args)
-        #settings for LCD size 
-        device.bounding_box = (0, 0, 127, 127)
-        device.size = (128, 128)
-        device.framebuffer.bounding_box = (0, 0, 127, 127)
+        # device = cmdline.create_device(args)
+        # #settings for LCD size
+        # device.bounding_box = (0, 0, 127, 127)
+        # device.size = (128, 128)
+        # device.framebuffer.bounding_box = (0, 0, 127, 127)
+        device = st7735(width=128, height=128, h_offset=2, v_offset=1)
     except error.Error as e:
         parser.error(e)
 
@@ -73,13 +75,4 @@ def convert_params_to_coord(angle, distance_from_center_percent, outer_radius):
 
 
 def draw_eye(eyes_canvas, emotion, x0, y0, x1, y1, fill='#14F6FA', outline='#14F6FA'):
-    # # default settings:
-    # x0 = 0
-    # y0 = 0
-    # x1 = 128
-    # y1 = 128
-    frame_rate_regulator = set_display_frame_rate(fps=30)  # framerate change speed
-    with frame_rate_regulator:
-        # eye outer border
-        eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
-
+    eyes_canvas.ellipse((x0, y0, x1, y1), fill=fill, outline=outline)
